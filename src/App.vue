@@ -10,6 +10,25 @@
   <router-view />
 </template>
 
+<script>
+import { io } from 'socket.io-client';
+import { ref, onMounted } from 'vue';
+
+export default {
+  setup () {
+    // 建立socket連接
+    const socket = io(process.env.VUE_APP_SOCKET_ENDPOINT);
+    console.log(socket);
+    socket.emit('sendMsg', 'hiihih');
+
+    return {
+      // socket
+    };
+  }
+};
+
+</script>
+
 <style lang="scss">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

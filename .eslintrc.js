@@ -21,6 +21,8 @@ module.exports = {
       'error',
       'always'
     ],
+    'no-const-assign': ['off'],
+    'no-unused-vars': ['off'],
     'no-undef': ['off'],
     'no-console': ['off'],
     'global-require': 0,
