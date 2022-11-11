@@ -19,8 +19,16 @@ io.on('connection', (socket) => {
     console.log('user disconnected');
   });
 
+  // 監聽login
+  socket.on('login', () => {
+    console.log('loginSuccess');
+  });
+
   socket.on('sendMsg', (msg) => {
     console.log('message: ' + msg);
+
+    // 對所有client廣播
+    io.emit('broadcast', `server: ${msg}`);
   });
 });
 

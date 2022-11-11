@@ -1,28 +1,35 @@
 <template>
-  <nav>
-    <router-link to="/">
-      Home
-    </router-link> |
-    <router-link to="/about">
-      About
-    </router-link>
-  </nav>
   <router-view />
 </template>
 
 <script>
 import { io } from 'socket.io-client';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import store from './store';
 
 export default {
   setup () {
-    // 建立socket連接
+    // 建立socket連線
     const socket = io(process.env.VUE_APP_SOCKET_ENDPOINT);
+    store.commit('SET_SOCKET_CONNECTION', socket);
+    const setSocketConnection = () => {
+
+    };
+
+    onBeforeUnmount(() => {
+      socket.disconnect();
+    });
+
     console.log(socket);
     socket.emit('sendMsg', 'hiihih');
 
+    // 監聽廣播事件
+    socket.on('broadcast', (data) => {
+      console.log(data);
+    });
+
     return {
-      // socket
+      socket, setSocketConnection
     };
   }
 };
