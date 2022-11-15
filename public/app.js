@@ -8,7 +8,7 @@ const io = require('socket.io')(http, {
 });
 const allMessage = [];
 let onlineCount = 0;
-const allUsers = [];
+const userRows = [];
 
 app.get('/', (req, res) => {
   res.send('<h1>Hey Socket.io</h1>');
@@ -17,9 +17,9 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  onlineCount++;
-  io.emit('onlineUsers', onlineCount);
-  console.log(onlineCount);
+  // onlineCount++;
+  // io.emit('onlineUsers', onlineCount);
+  // console.log(onlineCount);
 
   // 監聽disconnect事件
   socket.on('disconnect', () => {
@@ -31,12 +31,23 @@ io.on('connection', (socket) => {
 
   // 監聽login
   socket.on('login', (userName) => {
-    io.emit('addUser', userName);
-    console.log('loginSuccess');
+    if (!userRows.includes(userName)) {
+      socket.emit('loginSuccess', userName);
+    } else {
+      socket.emit('loginFail', userName);
+    }
   });
 
   socket.on('logout', (userName) => {
     io.emit('removeUser', userName);
+  });
+
+  // 監聽進入chatPage
+  socket.on('goChat', (userName) => {
+    onlineCount++;
+    io.emit('onlineUsers', onlineCount);
+    io.emit('addUser', userName);
+    console.log(onlineCount);
   });
 
   // 發送之前的全部訊息

@@ -19,11 +19,24 @@
           v-for="(item,index) in chatRows"
           :key="index"
           class="chat-item"
-          :class="currentClassHandler(item.name)"
+          :class="currentClassHandler(item)"
         >
-          <span class="uname">{{ item.name }}</span>
-          <div class="message">
+          <span
+            v-if="!item.join"
+            class="uname"
+          >{{ item.name }}</span>
+          <div
+            v-if="!item.join"
+            class="message"
+          >
             {{ item.msg }}
+          </div>
+
+          <div
+            v-if="item.join"
+            class="join"
+          >
+            {{ item.name }}已加入聊天室
           </div>
         </div>
       </div>
@@ -70,7 +83,7 @@ export default {
       store.commit('SET_SOCKET_CONNECTION', setSocket);
     }
 
-    // const socket = store.state.socket;
+    socket.value.emit('goChat', userName);
 
     // 監聽上線人數
     socket.value.on('onlineUsers', (data) => {
@@ -79,8 +92,13 @@ export default {
     });
 
     // 監聽新加入的人
-    socket.value.on('addUser', (data) => {
-
+    socket.value.on('addUser', (payload) => {
+      if (payload === userName) { return; }
+      chatRows.push({
+        name: payload,
+        msg: '',
+        join: true
+      });
     });
 
     // 進入聊天室時，會收到之前的全部訊息，並更新到 messages
@@ -100,13 +118,15 @@ export default {
     const sendMessageHandler = () => {
       socket.value.emit('sendMessage', {
         name: userName,
-        msg: message.value
+        msg: message.value,
+        join: false
       });
       message.value = '';
     };
 
     const currentClassHandler = (payload) => {
-      return payload === userName ? 'right' : 'left';
+      return payload.join ? 'middle' : (payload.name === userName ? 'right' : 'left');
+      // return payload === userName ? 'right' : 'left';
     };
 
     // 離開聊天室 登出
@@ -282,6 +302,21 @@ export default {
         top: 4px;
         color: gray;
     }
+  }
+
+  .middle {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+
+    .join {
+      background: white;
+      color: #413177;
+      border-radius: 10px;
+      padding: 3px 10px;
+      margin-top: 30px;
+    }
+
   }
 
 </style>

@@ -6,6 +6,7 @@ export default createStore({
     userName: ''
   },
   getters: {
+
   },
   mutations: {
     SET_SOCKET_CONNECTION (state, data) {
@@ -14,6 +15,7 @@ export default createStore({
     SET_USER_NAME (state, data) {
       state.userName = data;
     }
+
   },
   actions: {
   },

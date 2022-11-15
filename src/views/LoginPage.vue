@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import store from '@/store';
 import { ElMessage } from 'element-plus';
@@ -41,7 +41,6 @@ export default {
     const userName = ref('');
     const showWarning = ref(false);
     const router = useRouter();
-    // const socket = store.state.socket;
 
     const loginHandler = () => {
       if (userName.value === '') {
@@ -61,9 +60,22 @@ export default {
       const socket = io(process.env.VUE_APP_SOCKET_ENDPOINT);
       store.commit('SET_SOCKET_CONNECTION', socket);
 
-      sessionStorage.setItem('user', userName.value);
       socket.emit('login', userName.value);
-      router.push({ path: '/chatPage' });
+
+      socket.on('loginSuccess', () => {
+        sessionStorage.setItem('user', userName.value);
+        router.push({ path: '/chatPage' });
+      });
+
+      socket.on('loginFail', () => {
+        socket.disconnect();
+        ElMessage({
+          showClose: true,
+          userName: '已有相同用戶名',
+          type: 'warning',
+          duration: 2000
+        });
+      });
     };
 
     return {
