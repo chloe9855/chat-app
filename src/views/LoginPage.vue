@@ -8,16 +8,23 @@
         Join chat room!
       </p>
       <input
-        v-model.trim="message"
+        v-model.trim="userName"
         type="text"
         placeholder="Enter your name"
       >
-      <div
+      <!-- <div
         class="enterBt"
         @click="loginHandler"
       >
         Start
-      </div>
+      </div> -->
+      <el-button
+        class="enterBt"
+        :plain="true"
+        @click="loginHandler"
+      >
+        Start
+      </el-button>
     </div>
   </div>
 </template>
@@ -26,26 +33,41 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import store from '@/store';
+import { ElMessage } from 'element-plus';
+import { io } from 'socket.io-client';
 
 export default {
   setup () {
-    const message = ref('');
+    const userName = ref('');
     const showWarning = ref(false);
     const router = useRouter();
-    const socket = store.state.socket;
+    // const socket = store.state.socket;
 
     const loginHandler = () => {
-      if (message.value === '') {
-        alert('no');
-        // showWarning.value = true;
+      if (userName.value === '') {
+        ElMessage({
+          showClose: true,
+          userName: 'Please enter you name',
+          type: 'warning',
+          duration: 2000
+        });
       } else {
-        socket.emit('login', 'successLogin');
-        router.push({ path: '/chatPage' });
+        setSocketConnection();
       }
     };
 
+    const setSocketConnection = () => {
+      // 建立socket連線
+      const socket = io(process.env.VUE_APP_SOCKET_ENDPOINT);
+      store.commit('SET_SOCKET_CONNECTION', socket);
+
+      sessionStorage.setItem('user', userName.value);
+      socket.emit('login', userName.value);
+      router.push({ path: '/chatPage' });
+    };
+
     return {
-      message, router, loginHandler, socket, showWarning
+      userName, router, loginHandler, showWarning, setSocketConnection
     };
   }
 };
@@ -97,6 +119,7 @@ export default {
       margin: 20px auto;
       height: 40px;
       line-height:40px;
+      @include noto-sans-tc-16-regular;
 
       &::placeholder {
         color: #a19bc4;
@@ -106,7 +129,7 @@ export default {
     .enterBt {
       width:50%;
       min-width: 250px;
-      display:block;
+      // display:block;
       margin:0 auto;
       height: 40px;
       line-height:40px;
@@ -115,7 +138,12 @@ export default {
       color:#fff;
       border-radius:20px;
       cursor: pointer;
+      @include noto-sans-tc-16-regular;
     }
+  }
+
+  .el-message__content {
+    @include noto-sans-tc-16-regular;
   }
 
 </style>
