@@ -1,9 +1,10 @@
 <template>
   <div class="wrap">
     <div class="container">
-      <p class="icon">
-        🍇
-      </p>
+      <img
+        :src="require('../assets/img/planet.png')"
+        class="icon"
+      >
       <p class="title">
         Join chat room!
       </p>
@@ -11,13 +12,9 @@
         v-model.trim="userName"
         type="text"
         placeholder="Enter your name"
+        @keyup.enter="loginHandler"
       >
-      <!-- <div
-        class="enterBt"
-        @click="loginHandler"
-      >
-        Start
-      </div> -->
+
       <el-button
         class="enterBt"
         :plain="true"
@@ -46,7 +43,7 @@ export default {
       if (userName.value === '') {
         ElMessage({
           showClose: true,
-          userName: 'Please enter you name',
+          message: 'Please enter your name',
           type: 'warning',
           duration: 2000
         });
@@ -60,6 +57,13 @@ export default {
       const socket = io(process.env.VUE_APP_SOCKET_ENDPOINT);
       store.commit('SET_SOCKET_CONNECTION', socket);
 
+      socket.on('connectFail', () => {
+        ElMessage({
+          message: 'Sorry, there seems to be an issue with the connection.',
+          type: 'warning'
+        });
+      });
+
       socket.emit('login', userName.value);
 
       socket.on('loginSuccess', () => {
@@ -71,9 +75,9 @@ export default {
         socket.disconnect();
         ElMessage({
           showClose: true,
-          userName: '已有相同用戶名',
+          message: 'Duplicate name already exists',
           type: 'warning',
-          duration: 2000
+          duration: 10000
         });
       });
     };
@@ -88,10 +92,8 @@ export default {
 <style lang="scss">
 
   .wrap {
-    background: repeating-linear-gradient(45deg,
-    #EAD7EA 0,#EAD7EA 15%,
-    #ccc7e8 30%,  #ccc7e8 45%,
-    #EAD7EA 60%);
+    background-image: linear-gradient(to right top, #dbb0ff, #e2bbff, #e8c5ff, #eed0ff, #f3dbff, #efe1ff, #ece7ff, #ececff, #e3edff, #d7f0ff, #cbf2ff, #c1f4ff);
+    background-image: linear-gradient(to right top, #dbb0ff, #e2bbff, #e8c5ff, #eed0ff, #f3dbff, #f5dcfe, #f7defd, #f8dffc, #f8d6f9, #f8cdf4, #fac4ef, #fbbae9);
     width: 100vw;
     height: 100vh;
     text-align:center;
@@ -109,7 +111,8 @@ export default {
     padding: 50px 20px;
 
     .icon {
-       font-size: 50px;
+      width: 110px;
+      transform: rotate(25deg);;
       margin-bottom: 20px;
     }
 
@@ -123,7 +126,7 @@ export default {
       width: 30%;
       min-width: 214px;
       border: none;
-      background-color: #f4e8f4;
+      background-color: #F9EAFF;
       padding: 0 20px;
       border-radius: 20px;
       outline: 0;
@@ -141,12 +144,12 @@ export default {
     .enterBt {
       width:50%;
       min-width: 250px;
-      // display:block;
       margin:0 auto;
       height: 40px;
       line-height:40px;
       border:none;
-      background:#7062D1;
+      // background:#7062D1;
+      background: #9f5ed5;
       color:#fff;
       border-radius:20px;
       cursor: pointer;
@@ -156,6 +159,10 @@ export default {
 
   .el-message__content {
     @include noto-sans-tc-16-regular;
+  }
+
+  .el-message {
+    min-width: 320px;
   }
 
 </style>

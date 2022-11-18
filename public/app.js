@@ -7,7 +7,7 @@ const io = require('socket.io')(http, {
   }
 });
 const allMessage = [];
-let onlineCount = 0;
+// let onlineCount = 0;
 const userRows = [];
 
 app.get('/', (req, res) => {
@@ -17,16 +17,12 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  // onlineCount++;
-  // io.emit('onlineUsers', onlineCount);
-  // console.log(onlineCount);
-
   // 監聽disconnect事件
   socket.on('disconnect', () => {
     console.log('user disconnected');
 
-    onlineCount--;
-    io.emit('onlineUsers', onlineCount);
+    // onlineCount--;
+    // io.emit('onlineUsers', onlineCount);
   });
 
   // 監聽login
@@ -36,18 +32,21 @@ io.on('connection', (socket) => {
     } else {
       socket.emit('loginFail', userName);
     }
+    userRows.push(userName);
   });
 
   socket.on('logout', (userName) => {
-    io.emit('removeUser', userName);
+    const index = userRows.findIndex(item => item === userName);
+    userRows.splice(index, 1);
+    io.emit('removeUser', userName, userRows.length);
   });
 
   // 監聽進入chatPage
   socket.on('goChat', (userName) => {
-    onlineCount++;
-    io.emit('onlineUsers', onlineCount);
-    io.emit('addUser', userName);
-    console.log(onlineCount);
+    // onlineCount++;
+    // io.emit('onlineUsers', onlineCount);
+    io.emit('addUser', userName, userRows.length);
+    console.log(userRows.length);
   });
 
   // 發送之前的全部訊息
@@ -61,6 +60,10 @@ io.on('connection', (socket) => {
     // 對所有client廣播
     io.emit('newMessage', data);
   });
+});
+
+io.on('connect_error', (socket) => {
+  socket.emit('connectFail');
 });
 
 http.listen(3000, () => {

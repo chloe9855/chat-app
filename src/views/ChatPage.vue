@@ -86,19 +86,28 @@ export default {
     socket.value.emit('goChat', userName);
 
     // 監聽上線人數
-    socket.value.on('onlineUsers', (data) => {
-      console.log(data);
-      onlinePeople.value = data;
-    });
+    // socket.value.on('onlineUsers', (data) => {
+    //   console.log(data);
+    //   onlinePeople.value = data;
+    // });
 
     // 監聽新加入的人
-    socket.value.on('addUser', (payload) => {
-      if (payload === userName) { return; }
+    socket.value.on('addUser', (uName, count) => {
       chatRows.push({
-        name: payload,
-        msg: '',
+        name: uName,
+        msg: `${uName}已加入聊天室`,
         join: true
       });
+      onlinePeople.value = count;
+    });
+
+    socket.value.on('removeUser', (uName, count) => {
+      chatRows.push({
+        name: uName,
+        msg: `${uName}已離開聊天室`,
+        join: true
+      });
+      onlinePeople.value = count;
     });
 
     // 進入聊天室時，會收到之前的全部訊息，並更新到 messages
@@ -116,6 +125,7 @@ export default {
 
     // 發送訊息
     const sendMessageHandler = () => {
+      if (message.value === '') { return; }
       socket.value.emit('sendMessage', {
         name: userName,
         msg: message.value,
@@ -208,12 +218,14 @@ export default {
       outline: none;
       line-height: 50px;
       padding: 0 20px;
-      box-shadow: 0px 0px 12px #d5d6e5;
+      box-shadow: 0px 0px 12px #dec7f3;
       @include noto-sans-tc-16-regular;
   }
 
   .sendBtn {
-    background: #979ae5;
+    // background: #979ae5;
+    // background: #aa63e5;
+    background: #9f5ed5;
     border-radius: 25px;
     width: 45px;
     height: 45px;
