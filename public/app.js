@@ -7,7 +7,6 @@ const io = require('socket.io')(http, {
   }
 });
 const allMessage = [];
-// let onlineCount = 0;
 const userRows = [];
 
 app.get('/', (req, res) => {
@@ -20,9 +19,6 @@ io.on('connection', (socket) => {
   // 監聽disconnect事件
   socket.on('disconnect', () => {
     console.log('user disconnected');
-
-    // onlineCount--;
-    // io.emit('onlineUsers', onlineCount);
   });
 
   // 監聽login
@@ -43,8 +39,6 @@ io.on('connection', (socket) => {
 
   // 監聽進入chatPage
   socket.on('goChat', (userName) => {
-    // onlineCount++;
-    // io.emit('onlineUsers', onlineCount);
     io.emit('addUser', userName, userRows.length);
     console.log(userRows.length);
   });
